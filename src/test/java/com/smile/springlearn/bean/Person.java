@@ -10,5 +10,6 @@ public class Person {
     private Integer age;
 
 
+    private Car car;
 
 }

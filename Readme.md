@@ -37,3 +37,59 @@ public class PopulateBeanWithPropertyValuesTest {
 }
 
 ```
+
+# 04 为bean注入bean
+增加BeanReference类，包装一个bean对另一个bean的引用。实例化beanA后填充属性时，若PropertyValue#value为BeanReference，引用beanB，则先去实例化beanB。 由于不想增加代码的复杂度提高理解难度，暂时不支持循环依赖。
+
+```java
+
+public class PopulateBeanWithPropertyValuesTest {
+
+    @Test
+    public void testPopulateBeanWithPropertyValues() throws Exception {
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        PropertyValues propertyValues = new PropertyValues();
+        propertyValues.addPropertyValue(new PropertyValue("name", "smile"));
+        propertyValues.addPropertyValue(new PropertyValue("age", 27));
+        BeanDefinition beanDefinition = new BeanDefinition(Person.class, propertyValues);
+        beanFactory.registerBeanDefinition("person", beanDefinition);
+
+        Person person = (Person) beanFactory.getBean("person");
+        System.out.println(person);
+        assertThat(person.getName()).isEqualTo("smile");
+        assertThat(person.getAge()).isEqualTo(27);
+    }
+
+
+    @Test
+    public void testPopulateBeanWithBean() throws Exception {
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        //注册car实例
+        PropertyValues carPropertyValues = new PropertyValues();
+        carPropertyValues.addPropertyValue(new PropertyValue("brand", "奔驰"));
+        BeanDefinition carBeanDefinition = new BeanDefinition(Car.class, carPropertyValues);
+        beanFactory.registerBeanDefinition("car", carBeanDefinition);
+
+        //注册person实例
+        PropertyValues propertyValues = new PropertyValues();
+        propertyValues.addPropertyValue(new PropertyValue("name", "smile"));
+        propertyValues.addPropertyValue(new PropertyValue("age", 27));
+        propertyValues.addPropertyValue(new PropertyValue("car", new BeanReference("car")));
+        BeanDefinition beanDefinition = new BeanDefinition(Person.class, propertyValues);
+        beanFactory.registerBeanDefinition("person", beanDefinition);
+
+        Person person = (Person) beanFactory.getBean("person");
+        System.out.println(person);
+        assertThat(person.getName()).isEqualTo("smile");
+        assertThat(person.getAge()).isEqualTo(27);
+        Car car = person.getCar();
+        assertThat(car).isNotNull();
+        assertThat(car.getBrand()).isEqualTo("奔驰");
+    }
+
+}
+
+```
+
+
+

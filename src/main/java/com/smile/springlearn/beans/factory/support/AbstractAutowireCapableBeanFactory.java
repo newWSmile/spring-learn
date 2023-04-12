@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.smile.springlearn.beans.BeansException;
 import com.smile.springlearn.beans.PropertyValue;
 import com.smile.springlearn.beans.factory.config.BeanDefinition;
+import com.smile.springlearn.beans.factory.config.BeanReference;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
 
@@ -34,6 +35,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             for (PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValue()) {
                 String name = propertyValue.getName();
                 Object value = propertyValue.getValue();
+                if (value instanceof BeanReference){
+                    BeanReference beanReference = (BeanReference) value;
+                    value = getBean(beanReference.getBeanName());
+                }
+
                 BeanUtil.setFieldValue(bean, name, value);
             }
         } catch (Exception e) {
