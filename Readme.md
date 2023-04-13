@@ -185,3 +185,28 @@ BeanDefinitionReader是读取bean定义信息的抽象接口，XmlBeanDefinition
 调整后的`DefaultListableBeanFactory` 类结构图如下
 
 ![DefaultListableBeanFactory模仿Spring类图.png](img%2FDefaultListableBeanFactory%E6%A8%A1%E4%BB%BFSpring%E7%B1%BB%E5%9B%BE.png)
+
+
+--- 
+# 07 BeanFactoryPostProcessor和BeanPostProcessor
+
+- **BeanFactoryPostProcessor**
+
+`BeanFactoryPostProcessor是spring提供的容器扩展机制，允许我们在bean实例化之前修改bean的定义信息即BeanDefinition的信息。其重要的实现类有PropertyPlaceholderConfigurer和CustomEditorConfigurer，PropertyPlaceholderConfigurer的作用是用properties文件的配置值替换xml文件中的占位符，CustomEditorConfigurer的作用是实现类型转换。BeanFactoryPostProcessor的实现比较简单，看单元测试BeanFactoryPostProcessorAndBeanPostProcessorTest#testBeanFactoryPostProcessor追下代码。`
+
+其中主要是将`BeanFactory` 传入到自定义的`BeanFactoryPostProcessor`中 直接执行相对应的`postProcessBeanFactory`方法
+
+
+<br/>
+
+- **BeanPostProcessor**
+
+`BeanPostProcessor也是spring提供的容器扩展机制，不同于BeanFactoryPostProcessor的是，BeanPostProcessor在bean实例化后修改bean或替换bean。BeanPostProcessor是后面实现AOP的关键。`
+
+其中主要在 `AbstractBeanFactory`中加入了一个`List<BeanPostProcessor> beanPostProcessors`，
+然后在`addBeanPostProcessor`方法中加入需要的BeanPostProcessor <br/>
+
+在`AbstractAutowireCapableBeanFactory.initializeBean`方法中去调用执行所有BeanPostProcessor的前置后置方法
+
+
+

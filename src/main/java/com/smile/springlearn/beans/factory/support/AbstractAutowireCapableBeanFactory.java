@@ -5,6 +5,7 @@ import com.smile.springlearn.beans.BeansException;
 import com.smile.springlearn.beans.PropertyValue;
 import com.smile.springlearn.beans.factory.config.AutowireCapableBeanFactory;
 import com.smile.springlearn.beans.factory.config.BeanDefinition;
+import com.smile.springlearn.beans.factory.config.BeanPostProcessor;
 import com.smile.springlearn.beans.factory.config.BeanReference;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
@@ -23,12 +24,29 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
             //为bean填充属性
             applyPropertyValues(beanName, bean, beanDefinition);
+            //执行bean的初始化方法和BeanPostProcessor的前置和后置处理方法
+            bean = initializeBean(beanName,bean,beanDefinition);
 
         } catch (Exception e) {
             throw new BeansException("实例化bean失败", e);
         }
         addSingleton(beanName, bean);
         return bean;
+    }
+
+    protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
+        //执行BeanPostProcessor的前置方法
+        Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean,beanName);
+        //Fixme:smile 后面会在此处执行bean的初始化方法
+        invokeInitMethods(beanName,wrappedBean,beanDefinition);
+        //执行BeanPostProcessor的后置方法
+        wrappedBean = applyBeanPostProcessorsAfterInitialization(bean,beanName);
+        return wrappedBean;
+    }
+
+    private void invokeInitMethods(String beanName, Object wrappedBean, BeanDefinition beanDefinition) {
+        //todo 后续实现
+        System.out.println("执行bean【"+beanName+"】的初始化方法ing");
     }
 
     protected void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
@@ -47,6 +65,33 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throw new BeansException("Error setting property values for bean: " + beanName, e);
         }
 
+    }
+
+
+    @Override
+    public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName) throws BeansException {
+        Object result = existingBean;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            Object current = beanPostProcessor.postProcessBeforeInitialization(result,beanName);
+            if (null == current){
+                return result;
+            }
+            result = current;
+        }
+        return result;
+    }
+
+    @Override
+    public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName) throws BeansException {
+        Object result = existingBean;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            Object current = beanPostProcessor.postProcessAfterInitialization(result,beanName);
+            if (null == current){
+                return result;
+            }
+            result = current;
+        }
+        return result;
     }
 
     protected Object createBeanInstance(BeanDefinition beanDefinition) {

@@ -3,6 +3,7 @@ package com.smile.springlearn.beans.factory;
 import com.smile.springlearn.beans.BeansException;
 import com.smile.springlearn.beans.factory.config.AutowireCapableBeanFactory;
 import com.smile.springlearn.beans.factory.config.BeanDefinition;
+import com.smile.springlearn.beans.factory.config.BeanPostProcessor;
 import com.smile.springlearn.beans.factory.config.ConfigurableBeanFactory;
 
 public interface ConfigurableListableBeanFactory extends ListableBeanFactory, ConfigurableBeanFactory, AutowireCapableBeanFactory {
@@ -14,5 +15,18 @@ public interface ConfigurableListableBeanFactory extends ListableBeanFactory, Co
      * @throws BeansException
      */
     BeanDefinition getBeanDefinition(String beanName) throws BeansException;
+
+
+    /**
+     * 提前实例化所有单例实例
+     * @throws BeansException
+     */
+    void preInstantiateSingletons() throws BeansException;
+
+    /**
+     * 新增BeanPostProcessor
+     * @param beanPostProcessor
+     */
+    void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
 }
