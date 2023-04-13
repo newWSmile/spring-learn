@@ -3,10 +3,11 @@ package com.smile.springlearn.beans.factory.support;
 import cn.hutool.core.bean.BeanUtil;
 import com.smile.springlearn.beans.BeansException;
 import com.smile.springlearn.beans.PropertyValue;
+import com.smile.springlearn.beans.factory.config.AutowireCapableBeanFactory;
 import com.smile.springlearn.beans.factory.config.BeanDefinition;
 import com.smile.springlearn.beans.factory.config.BeanReference;
 
-public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
 

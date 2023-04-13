@@ -28,7 +28,7 @@ public class BeanDefinitionAndBeanDefinitionRegistryTest {
 	}
 }
 ```
-
+---- 
 # 02 Bean实例化策略InstantiationStrategy
 
 现在bean是在AbstractAutowireCapableBeanFactory.doCreateBean方法中用beanClass.newInstance()来实例化，仅适用于bean有无参构造函数的情况。
@@ -40,7 +40,7 @@ public class BeanDefinitionAndBeanDefinitionRegistryTest {
 
 - SimpleInstantiationStrategy，使用bean的构造函数来实例化
 - CglibSubclassingInstantiationStrategy，使用CGLIB动态生成子类
-
+--- 
 
 # 03 为bean填充属性
 
@@ -68,7 +68,7 @@ public class PopulateBeanWithPropertyValuesTest {
 }
 
 ```
-
+---- 
 # 04 为bean注入bean
 增加BeanReference类，包装一个bean对另一个bean的引用。实例化beanA后填充属性时，若PropertyValue#value为BeanReference，引用beanB，则先去实例化beanB。 由于不想增加代码的复杂度提高理解难度，暂时不支持循环依赖。
 
@@ -121,7 +121,7 @@ public class PopulateBeanWithPropertyValuesTest {
 }
 
 ```
-
+--- 
 
 # 05 资源和资源加载器
 Resource是资源的抽象和访问接口，简单写了三个实现类
@@ -171,3 +171,17 @@ public class ResourceAndResourceLoaderTest {
 
 }
 ```
+--- 
+# 06 在xml文件中定义bean
+有了资源加载器，就可以在xml格式配置文件中声明式地定义bean的信息，资源加载器读取xml文件，解析出bean的信息，然后往容器中注册BeanDefinition。
+
+BeanDefinitionReader是读取bean定义信息的抽象接口，XmlBeanDefinitionReader是从xml文件中读取的实现类。BeanDefinitionReader需要有获取资源的能力，且读取bean定义信息后需要往容器中注册BeanDefinition，因此BeanDefinitionReader的抽象实现类AbstractBeanDefinitionReader拥有ResourceLoader和BeanDefinitionRegistry两个属性。
+
+由于从xml文件中读取的内容是String类型，所以属性仅支持String类型和引用其他Bean。后面会讲到类型转换器，实现类型转换。
+
+为了方便后面的讲解和功能实现，并且尽量保持和spring中BeanFactory的继承层次一致，对BeanFactory的继承层次稍微做了调整。
+
+
+调整后的`DefaultListableBeanFactory` 类结构图如下
+
+![DefaultListableBeanFactory模仿Spring类图.png](img%2FDefaultListableBeanFactory%E6%A8%A1%E4%BB%BFSpring%E7%B1%BB%E5%9B%BE.png)
