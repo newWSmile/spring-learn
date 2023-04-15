@@ -1,4 +1,4 @@
-package com.smile.springlearn.ioc;
+package com.smile.springlearn.service;
 
 public class HelloService {
 

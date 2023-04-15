@@ -12,7 +12,7 @@ public interface BeanFactory {
      * @param beanName
      * @return
      */
-    public Object getBean(String beanName);
+    public Object getBean(String beanName) throws BeansException;
 
 
     /**

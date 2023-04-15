@@ -16,5 +16,8 @@
         <property name="brand" value="奔驰"/>
     </bean>
 
+    <bean class="com.smile.springlearn.common.CustomBeanFactoryPostProcessor"/>
+
+    <bean class="com.smile.springlearn.common.CustomBeanPostProcessor"/>
 
 </beans>

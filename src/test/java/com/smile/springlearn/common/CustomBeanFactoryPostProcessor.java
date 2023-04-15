@@ -13,6 +13,7 @@ public class CustomBeanFactoryPostProcessor implements BeanFactoryPostProcessor 
         BeanDefinition beanDefinition = beanFactory.getBeanDefinition("person");
         PropertyValues propertyValues = beanDefinition.getPropertyValues();
         //将person的 name 设置为jane
+        System.out.println("执行CustomBeanFactoryPostProcessor的postProcessBeanFactory方法把smile替换成了jane");
         propertyValues.addPropertyValue(new PropertyValue("name","jane"));
     }
 }

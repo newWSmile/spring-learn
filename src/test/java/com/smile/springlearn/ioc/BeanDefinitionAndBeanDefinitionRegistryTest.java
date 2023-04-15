@@ -2,6 +2,7 @@ package com.smile.springlearn.ioc;
 
 import com.smile.springlearn.beans.factory.config.BeanDefinition;
 import com.smile.springlearn.beans.factory.support.DefaultListableBeanFactory;
+import com.smile.springlearn.service.HelloService;
 import org.junit.Test;
 
 
