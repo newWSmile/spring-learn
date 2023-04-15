@@ -226,3 +226,29 @@ BeanFactory是spring的基础设施，面向spring本身；而ApplicationContext
 - ### `ClassPathXmlApplicationContext`的类结构图如下:
 
 ![CalssPathXmlApplicationContext类图.png](img%2FCalssPathXmlApplicationContext%E7%B1%BB%E5%9B%BE.png)
+
+- 测试代码如下:
+```java
+
+
+public class ApplicationContextTest {
+
+    @Test
+    public void testApplicationContext() throws BeansException {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        Person person = applicationContext.getBean("person", Person.class);
+        System.out.println(person);
+        //在CustomBeanFactoryPostProcessor改成了jane
+        assertThat(person.getName()).isEqualTo("jane");
+
+        Car car = applicationContext.getBean("car", Car.class);
+        System.out.println(car);
+        //在CustomBeanPostProcessor改成了兰博基尼
+        assertThat(car.getBrand()).isEqualTo("兰博基尼");
+
+    }
+
+}
+
+```
