@@ -253,3 +253,39 @@ public class ApplicationContextTest {
 
 ```
 
+----
+
+# 09 bean的初始化和销毁方法
+
+> 代码分之 10-init-and-destroy-method
+
+在spring中，定义bean的初始化和销毁方法有三种方法：
+
+- 在xml文件中制定init-method和destroy-method 
+- 继承自InitializingBean和DisposableBean
+- 在方法上加注解PostConstruct和PreDestroy
+
+第三种通过BeanPostProcessor实现，在扩展篇中实现，本节只实现前两种。
+
+针对第一种在xml文件中指定初始化和销毁方法的方式，在BeanDefinition中增加属性initMethodName和destroyMethodName。
+
+初始化方法在AbstractAutowireCapableBeanFactory#invokeInitMethods执行。DefaultSingletonBeanRegistry中增加属性disposableBeans保存拥有销毁方法的bean，拥有销毁方法的bean在AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary中注册到disposableBeans中。
+
+为了确保销毁方法在虚拟机关闭之前执行，向虚拟机中注册一个钩子方法，查看AbstractApplicationContext#registerShutdownHook（非web应用需要手动调用该方法）。当然也可以手动调用ApplicationContext#close方法关闭容器。
+
+到此为止，bean的生命周期如下：
+![初始化和销毁的Bean的生命周期.png](img%2F%E5%88%9D%E5%A7%8B%E5%8C%96%E5%92%8C%E9%94%80%E6%AF%81%E7%9A%84Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
+
+- 测试代码如下:
+```java
+
+public class InitAndDestroyMethodTest {
+
+    @Test
+    public void testInitAndDestroyMethod(){
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:init-and-destroy-method.xml");
+        applicationContext.registerShutdownHook();  //或者手动关闭 applicationContext.close();
+    }
+}
+
+```
