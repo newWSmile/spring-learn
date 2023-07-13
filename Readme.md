@@ -257,7 +257,7 @@ public class ApplicationContextTest {
 
 # 09 bean的初始化和销毁方法
 
-> 代码分之 09-init-and-destroy-method
+> 代码分支 09-init-and-destroy-method
 
 在spring中，定义bean的初始化和销毁方法有三种方法：
 
