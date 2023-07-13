@@ -261,17 +261,17 @@ public class ApplicationContextTest {
 
 在spring中，定义bean的初始化和销毁方法有三种方法：
 
-- 在xml文件中制定init-method和destroy-method 
-- 继承自InitializingBean和DisposableBean
-- 在方法上加注解PostConstruct和PreDestroy
+- 在xml文件中制定`init-method`和`destroy-method `
+- 继承自`InitializingBean`和`DisposableBean`
+- 在方法上加注解`PostConstruct`和`PreDestroy`
 
-第三种通过BeanPostProcessor实现，在扩展篇中实现，本节只实现前两种。
+第三种通过`BeanPostProcessor`实现，在扩展篇中实现，本节只实现前两种。
 
-针对第一种在xml文件中指定初始化和销毁方法的方式，在BeanDefinition中增加属性initMethodName和destroyMethodName。
+针对第一种在xml文件中指定初始化和销毁方法的方式，在`BeanDefinition`中增加属性`initMethodName`和`destroyMethodName`。
 
-初始化方法在AbstractAutowireCapableBeanFactory#invokeInitMethods执行。DefaultSingletonBeanRegistry中增加属性disposableBeans保存拥有销毁方法的bean，拥有销毁方法的bean在AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary中注册到disposableBeans中。
+初始化方法在`AbstractAutowireCapableBeanFactory#invokeInitMethods`执行。`DefaultSingletonBeanRegistry`中增加属性`disposableBeans`保存拥有销毁方法的bean，拥有销毁方法的bean在`AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary`中注册到`disposableBeans`中。
 
-为了确保销毁方法在虚拟机关闭之前执行，向虚拟机中注册一个钩子方法，查看AbstractApplicationContext#registerShutdownHook（非web应用需要手动调用该方法）。当然也可以手动调用ApplicationContext#close方法关闭容器。
+为了确保销毁方法在虚拟机关闭之前执行，向虚拟机中注册一个钩子方法，查看`AbstractApplicationContext#registerShutdownHook`（非web应用需要手动调用该方法）。当然也可以手动调用`ApplicationContext#close`方法关闭容器。
 
 到此为止，bean的生命周期如下：
 ![初始化和销毁的Bean的生命周期.png](img%2F%E5%88%9D%E5%A7%8B%E5%8C%96%E5%92%8C%E9%94%80%E6%AF%81%E7%9A%84Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
