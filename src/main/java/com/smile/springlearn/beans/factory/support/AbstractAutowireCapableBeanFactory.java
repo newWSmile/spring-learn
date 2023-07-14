@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.StrUtil;
 import com.smile.springlearn.beans.BeansException;
+import com.smile.springlearn.beans.factory.BeanFactoryAware;
 import com.smile.springlearn.beans.factory.DisposableBean;
 import com.smile.springlearn.beans.factory.InitializingBean;
 import com.smile.springlearn.beans.PropertyValue;
@@ -59,6 +60,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     protected Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
+        if (bean instanceof BeanFactoryAware){
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
+
         //执行BeanPostProcessor的前置方法
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean,beanName);
         try {

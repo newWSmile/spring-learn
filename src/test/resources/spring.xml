@@ -20,4 +20,6 @@
 
     <bean class="com.smile.springlearn.common.CustomBeanPostProcessor"/>
 
+    <bean id="helloService" class="com.smile.springlearn.service.HelloService"/>
+
 </beans>

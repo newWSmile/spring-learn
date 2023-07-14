@@ -289,3 +289,37 @@ public class InitAndDestroyMethodTest {
 }
 
 ```
+
+
+-----
+# 10  Aware接口
+
+> 代码分支 10-aware-interface
+
+**重构了`XmlBeanDefinitionReader#doLoadBeanDefinitions(InputStream inputStream)` 使用dom4j 去解析xml**
+
+Aware是感知、意识的意思
+
+Aware接口是标记性接口，其实现子类能感知容器相关的对象。
+
+常用的Aware接口有`BeanFactoryAware`和`ApplicationContextAware`，分别能让其实现者感知所属的BeanFactory和ApplicationContext。
+
+让实现`BeanFactoryAware`接口的类能感知所属的`BeanFactory`
+
+实现比较简单，查看`AbstractAutowireCapableBeanFactory#initializeBean`前三行。
+```java
+ if (bean instanceof BeanFactoryAware){
+    ((BeanFactoryAware) bean).setBeanFactory(this);
+ }
+```
+
+
+实现`ApplicationContextAware`的接口感知`ApplicationContext`， 是通过`BeanPostProcessor`。
+由bean的生命周期可知，bean实例化后会经过`BeanPostProcessor`的前置处理和后置处理。
+- 1 定义一个`BeanPostProcessor`的实现类`ApplicationContextAwareProcessor`
+- 2 在`AbstractApplicationContext#refresh`方法中加入到BeanFactory中
+- 3 在前置处理中为bean设置所属的`ApplicationContext`。
+
+
+至止，bean的生命周期如下：
+![加入Aware接口相关的Bean的生命周期.png](img%2F%E5%8A%A0%E5%85%A5Aware%E6%8E%A5%E5%8F%A3%E7%9B%B8%E5%85%B3%E7%9A%84Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
