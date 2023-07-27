@@ -352,3 +352,66 @@ public class AwareInterfaceTest {
 }
 
 ```
+
+
+----
+
+# 11  Prototype作用域
+
+> 代码分支 11-prototype-bean
+>
+
+每次向容器获取prototype作用域bean时，容器都会创建一个新的实例。在`BeanDefinition`中增加描述bean的作用域的字段`scope/singleton/prototype`，创建prototype作用域bean时（`AbstractAutowireCapableBeanFactory#doCreateBean`），不往`singletonObjects`中增加该bean。prototype作用域bean不执行销毁方法，查看`AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary`方法。
+
+
+主要是三步
+- 1 在解析xml文件的是塞进去一个`scope`变量
+```java
+    public static final String SCOPE_ATTRIBUTE = "scope";
+
+    private static String SCOPE_SINGLETON = "singleton";
+    
+    private static String SCOPE_PROTOTYPE = "prototype";
+
+    String beanScope = bean.attributeValue(SCOPE_ATTRIBUTE);
+
+    //加入prototype作用域的处理逻辑
+    if (StrUtil.isNotEmpty(beanScope)){
+        beanDefinition.setScope(beanScope);
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+        this.singleton = SCOPE_SINGLETON.equals(scope);
+        this.prototype = SCOPE_PROTOTYPE.equals(scope);
+    }
+
+    public boolean isSingleton() {
+        return singleton;
+    }
+```
+
+- 2 创建prototype作用域bean时（`AbstractAutowireCapableBeanFactory#doCreateBean`），不往`singletonObjects`中增加该bean
+```java
+//加入prototype作用域的判断
+if (beanDefinition.isSingleton()){
+    addSingleton(beanName, bean);
+}
+
+```
+
+- 3 prototype作用域bean不执行销毁方法，查看`AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary`方法
+```java
+ //只有singleton类型bean会执行销毁方法
+if (beanDefinition.isSingleton()) {
+    if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
+        registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
+    }
+}
+
+```
+
+
+至止，bean的生命周期如下：
+
+![prototype-bean.png](img%2Fprototype-bean.png)
