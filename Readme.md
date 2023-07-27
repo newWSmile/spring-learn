@@ -318,8 +318,100 @@ Aware接口是标记性接口，其实现子类能感知容器相关的对象。
 由bean的生命周期可知，bean实例化后会经过`BeanPostProcessor`的前置处理和后置处理。
 - 1 定义一个`BeanPostProcessor`的实现类`ApplicationContextAwareProcessor`
 - 2 在`AbstractApplicationContext#refresh`方法中加入到BeanFactory中
+```java
+//添加ApplicationContextAwareProcessor 让继承ApplicationContextAware的bean能感知ApplicationContext应用上下文
+beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+```
 - 3 在前置处理中为bean设置所属的`ApplicationContext`。
-
+```java
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (bean instanceof ApplicationContextAware){
+            ((ApplicationContextAware) bean).setApplicationContext(applicationContext);
+        }
+        return bean;
+    }
+```
 
 至止，bean的生命周期如下：
 ![加入Aware接口相关的Bean的生命周期.png](img%2F%E5%8A%A0%E5%85%A5Aware%E6%8E%A5%E5%8F%A3%E7%9B%B8%E5%85%B3%E7%9A%84Bean%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.png)
+
+- 测试代码如下:
+```java
+
+public class AwareInterfaceTest {
+
+    @Test
+    public void test() throws Exception{
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        HelloService helloService = applicationContext.getBean("helloService", HelloService.class);
+        assertThat(helloService.getApplicationContext()).isNotNull();
+        assertThat(helloService.getBeanFactory()).isNotNull();
+    }
+
+}
+
+```
+
+
+----
+
+# 11  Prototype作用域
+
+> 代码分支 11-prototype-bean
+>
+
+每次向容器获取prototype作用域bean时，容器都会创建一个新的实例。在`BeanDefinition`中增加描述bean的作用域的字段`scope/singleton/prototype`，创建prototype作用域bean时（`AbstractAutowireCapableBeanFactory#doCreateBean`），不往`singletonObjects`中增加该bean。prototype作用域bean不执行销毁方法，查看`AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary`方法。
+
+
+主要是三步
+- 1 在解析xml文件的是塞进去一个`scope`变量
+```java
+    public static final String SCOPE_ATTRIBUTE = "scope";
+
+    private static String SCOPE_SINGLETON = "singleton";
+    
+    private static String SCOPE_PROTOTYPE = "prototype";
+
+    String beanScope = bean.attributeValue(SCOPE_ATTRIBUTE);
+
+    //加入prototype作用域的处理逻辑
+    if (StrUtil.isNotEmpty(beanScope)){
+        beanDefinition.setScope(beanScope);
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+        this.singleton = SCOPE_SINGLETON.equals(scope);
+        this.prototype = SCOPE_PROTOTYPE.equals(scope);
+    }
+
+    public boolean isSingleton() {
+        return singleton;
+    }
+```
+
+- 2 创建prototype作用域bean时（`AbstractAutowireCapableBeanFactory#doCreateBean`），不往`singletonObjects`中增加该bean
+```java
+//加入prototype作用域的判断
+if (beanDefinition.isSingleton()){
+    addSingleton(beanName, bean);
+}
+
+```
+
+- 3 prototype作用域bean不执行销毁方法，查看`AbstractAutowireCapableBeanFactory#registerDisposableBeanIfNecessary`方法
+```java
+ //只有singleton类型bean会执行销毁方法
+if (beanDefinition.isSingleton()) {
+    if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
+        registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
+    }
+}
+
+```
+
+
+至止，bean的生命周期如下：
+
+![prototype-bean.png](img%2Fprototype-bean.png)
